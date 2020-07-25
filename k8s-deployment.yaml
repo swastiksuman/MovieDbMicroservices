@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: moviedb-ms-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      component: web
+  template:
+    metadata:
+      labels:
+        component: web
+    spec:
+      containers:
+        - name: moviedb-ms
+          image: swastiksuman/moviedb-microservices
+          ports:
+            - containerPort: 8761
+            - containerPort: 8081
+            - containerPort: 8082
+            - containerPort: 8083  
+
