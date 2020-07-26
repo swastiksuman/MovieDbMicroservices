@@ -4,6 +4,9 @@ import io.javabrains.moviecatalogservice.models.CatalogItem;
 import io.javabrains.moviecatalogservice.models.Movie;
 import io.javabrains.moviecatalogservice.models.Rating;
 import io.javabrains.moviecatalogservice.models.UserRating;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,15 +28,18 @@ public class CatalogResource {
 
     @Autowired
     WebClient.Builder webClientBuilder;
+    
+    Logger logger = LoggerFactory.getLogger(CatalogResource.class);
 
     @RequestMapping("/{userId}")
     public List<CatalogItem> getCatalog(@PathVariable("userId") String userId) {
 
         UserRating userRating = restTemplate.getForObject("http://ratings-data-service/ratingsdata/user/" + userId, UserRating.class);
-
+        
         return userRating.getRatings().stream()
                 .map(rating -> {
                     Movie movie = restTemplate.getForObject("http://movie-info-service/movies/" + rating.getMovieId(), Movie.class);
+                    logger.debug("Movie: "+ movie.getMovieId()+" "+movie.getName());
                     return new CatalogItem(movie.getName(), movie.getDescription(), rating.getRating());
                 })
                 .collect(Collectors.toList());
